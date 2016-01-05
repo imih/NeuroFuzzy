@@ -1,9 +1,12 @@
 #include "neuro_fuzzy_network.h"
 
-#include <memory>
-#include <functional>
+#include <iostream>
 
-using std::placeholders::_1;
+namespace {
+const double eps = 10e-6;
+const double nabla = 1;
+const int kPrintStep = 500;
+}
 
 NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
     : m_(m), distribution_(-kMaxParVal, kMaxParVal) {
@@ -19,7 +22,44 @@ NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
 }
 
 void NeuroFuzzyNetwork::train(DescentType descent_type,
-                              const TrainData& train_data) {}  // TODO
+                              const TrainData& train_data) {
+  int it = 0;
+  while (E(train_data) < eps) {
+    it++;
+    if (it % kPrintStep == 0)
+      std::cout << it << "\t" << E(train_data) << std::endl;
+    for (int i = 0; i < m_; ++i) {
+      double da, db, dc, dd, dp, dq, dr;
+      if (descent_type == DescentType::STOCHASTIC) {
+        int k = randInt((int)train_data.size());
+        const TrainSample& ts = train_data[k];
+        da = dEa(i, ts);
+        db = dEb(i, ts);
+        dc = dEc(i, ts);
+        dd = dEd(i, ts);
+        dp = dEp(i, ts);
+        dq = dEq(i, ts);
+        dr = dEr(i, ts);
+      } else {
+        da = dEa(i, train_data);
+        db = dEb(i, train_data);
+        dc = dEc(i, train_data);
+        dd = dEd(i, train_data);
+        dp = dEp(i, train_data);
+        dq = dEq(i, train_data);
+        dr = dEr(i, train_data);
+      }
+
+      a_[i] -= nabla * da;
+      b_[i] -= nabla * db;
+      c_[i] -= nabla * dc;
+      d_[i] -= nabla * dd;
+      p_[i] -= nabla * dp;
+      q_[i] -= nabla * dq;
+      r_[i] -= nabla * dr;
+    }
+  }
+}
 
 double NeuroFuzzyNetwork::A(int i, double x) {
   return 1 / (1 + exp(b_[i] * (x - a_[i])));

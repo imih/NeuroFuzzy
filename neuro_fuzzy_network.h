@@ -7,7 +7,8 @@
 #include <vector>
 
 namespace {
-double kMaxParVal = 1;
+const double kMaxParVal = 1;
+const int kMaxParams = 7;
 }
 
 enum DescentType { STOCHASTIC, BATCH };
@@ -21,6 +22,10 @@ class NeuroFuzzyNetwork {
 
  private:
   double randDouble() { return distribution_(generator_); }
+  double randInt(int N) {
+    std::uniform_int_distribution<int> distr(0, N - 1);
+    return distr(generator_);
+  }
 
   double A(int i, double x);
   double B(int i, double x);
@@ -61,6 +66,7 @@ class NeuroFuzzyNetwork {
   double pom_konc(int i, const TrainSample& train_sample);
 
   int m_;
+  //  std::vector<double> params_[kMaxParams]; TODO start using
   std::vector<double> a_, b_, c_, d_, p_, q_, r_;
 
   std::default_random_engine generator_;
