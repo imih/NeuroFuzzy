@@ -5,7 +5,7 @@
 
 struct TrainSample {
   double x;
-  double y; 
+  double y;
   double z;
 };
 
