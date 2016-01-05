@@ -1,11 +1,12 @@
 #include "neuro_fuzzy_network.h"
 
 #include <iostream>
+#include <limits>
 
 namespace {
 const double eps = 10e-6;
-const double nabla = 1;
-const int kPrintStep = 500;
+const double nabla = 0.001;
+const int kPrintStep = 1;
 }
 
 NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
@@ -24,10 +25,13 @@ NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
 void NeuroFuzzyNetwork::train(DescentType descent_type,
                               const TrainData& train_data) {
   int it = 0;
-  while (E(train_data) < eps) {
+  double E_prev = std::numeric_limits<double>::max();
+  while (E(train_data) > eps) {
+    double E_cur = E(train_data);
+    if (E_cur > E_prev) break;
+    E_prev = E_cur;
     it++;
-    if (it % kPrintStep == 0)
-      std::cout << it << "\t" << E(train_data) << std::endl;
+    if (it % kPrintStep == 0) fprintf(stderr, "%d %lf\n", it, E_cur);
     for (int i = 0; i < m_; ++i) {
       double da, db, dc, dd, dp, dq, dr;
       if (descent_type == DescentType::STOCHASTIC) {
@@ -41,6 +45,7 @@ void NeuroFuzzyNetwork::train(DescentType descent_type,
         dq = dEq(i, ts);
         dr = dEr(i, ts);
       } else {
+        // DescentType::Batch
         da = dEa(i, train_data);
         db = dEb(i, train_data);
         dc = dEc(i, train_data);
@@ -58,15 +63,23 @@ void NeuroFuzzyNetwork::train(DescentType descent_type,
       q_[i] -= nabla * dq;
       r_[i] -= nabla * dr;
     }
+    if (it % 1000 == 0) {
+      for (int i = 0; i < m_; ++i) {
+        printf("%lf %lf %lf %lf %lf %lf %lf\n", a_[i], b_[i], c_[i], d_[i],
+               p_[i], q_[i], r_[i]);
+        fprintf(stderr, "%lf %lf %lf %lf %lf %lf %lf\n", a_[i], b_[i], c_[i],
+                d_[i], p_[i], q_[i], r_[i]);
+      }
+    }
   }
 }
 
 double NeuroFuzzyNetwork::A(int i, double x) {
-  return 1 / (1 + exp(b_[i] * (x - a_[i])));
+  return 1.0 / (1 + exp(b_[i] * (x - a_[i])));
 }
 
 double NeuroFuzzyNetwork::B(int i, double x) {
-  return 1 / (1 + exp(d_[i] * (x - c_[i])));
+  return 1.0 / (1 + exp(d_[i] * (x - c_[i])));
 }
 
 double NeuroFuzzyNetwork::w(int i, double x, double y) {
@@ -125,7 +138,7 @@ double NeuroFuzzyNetwork::pom_ant(int i, const TrainSample& train_sample) {
   }
   g = g * g;
   double a_i = alpha(i, x, y);
-  return fabs(z_k - o_k) * f * a_i / g;
+  return (z_k - o_k) * f * a_i / g;
 }
 
 double NeuroFuzzyNetwork::dEa(int i, const TrainSample& train_sample) {
@@ -170,7 +183,7 @@ double NeuroFuzzyNetwork::pom_konc(int i, const TrainSample& train_sample) {
   double a_i = alpha(i, x, y);
   double g = 0;
   for (int j = 0; j < m_; ++j) g += alpha(j, x, y);
-  return -fabs(z - o_k) * a_i / g;
+  return -(z - o_k) * a_i / g;
 }
 
 double NeuroFuzzyNetwork::dEp(int i, const TrainSample& train_sample) {

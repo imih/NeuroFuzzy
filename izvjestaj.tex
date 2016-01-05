@@ -89,7 +89,7 @@ Izlaz ANFIS mreže za jedan ulazni primjer $(x_k, y_k)$ definira se kao
 \begin{align*}
 o_k = \frac{\sum_{j = 1}^{m} \alpha_j w_j}{\sum_{j = 1}^{m} \alpha_j} 
 \end{align*}
-gdje je $\alpha_j$ jakost paljenja $i$-itog pravila, tj.
+gdje je $\alpha_j$ jakost paljenja $j$-itog pravila, tj.
 \begin{align*}
 \alpha_j = A_j(x_k) B_j(y_k).
 \end{align*}
@@ -146,7 +146,7 @@ gdje se gradijent evaluira u vrijednostima stanja $t$. Gradijente izvodimo pomo�
 
 \begin{align*}
 \mathbf{\frac{\partial E}{\partial b_i}} &= \frac{-1}{\mathbf{N}} \sum_{k=1}^{\mathbf{N}} (z_k - o_k) \frac{\partial o_k}{\partial\alpha_i} \frac{\partial \alpha_i}{\partial b_i} 
-\\ &= \frac{-1}{N}\sum_{k=1}^{\mathbf{N}} (z_k - o_k) \frac{\sum_{j = 1, j \neq i}^{m} \alpha_j (w_i - w_j)}{(\sum_{j=1}^{m} \alpha_j)^2 } B_i(y_k) -[1 -A_i(x)]A_i(x)(x - a_i)\\ &= 
+\\ &= \frac{-1}{N}\sum_{k=1}^{\mathbf{N}} (z_k - o_k) \frac{\sum_{j = 1, j \neq i}^{m} \alpha_j (w_i - w_j)}{(\sum_{j=1}^{m} \alpha_j)^2 } B_i(y_k) -[1 -A_i(x_k)]A_i(x_k)(x_k - a_i)\\ &= 
 \frac{1}{N}\sum_{k=1}^{\mathbf{N}} (z_k - o_k) \frac{\sum_{j = 1, j \neq i}^{m} \alpha_j (w_i - w_j)}{(\sum_{j=1}^{m} \alpha_j)^2 } \alpha_i [1 - A_i(x_k)](x_k - a_i)
 \end{align*}
 
@@ -196,6 +196,60 @@ gdje se gradijent evaluira u vrijednostima stanja $t$.
 
 
 \section{Analiza rezultata}
+Želimo naučiti funkciju 
+\begin{align*}
+f(x, y) = ((x - 1) ^ 2 + (y + 2)^ 2 - 5xy + 3) {\cos^2(\frac{x}{5})}
+\end{align*}
+pomoću $81$ uzorka evaluiranih u cijelobrojnim točkama nad domenom $[-4, 4]\times[-4, 4]$.
+
+Za evaluaciju jedne epohe gradijetnog spusta batch verzija traje $N$ puta više od stohatičke verzije jer evaluira usrednjeni gradijent po svim primjerima. Za veći $m$ evaluacija epohe također linearno raste zbog većeg broja parametara. Stopa učenja za varijante gradijetnog spusta je jednaka ako je za batch verziju gradijent definiran kao usrednjena vrijednost gradijenata u svim primjerima.
+
+Kako bi utvrdili optimalan broj parametara vezan uz broj pravila $m$, izveden je stohastički gradijentni spust uz isti seed pseudoslučajnih brojeva do $10000$ iteracija i $\mu = 0.001$. Temeljem tablice \ref{T1}, za optimalan parametar $m$ izabran je $m=5$.
+
+\begin{center}
+\begin{table}[h]
+\label{T1}
+\caption{}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline 
+$m$ & 1 & 2 & 3 & 4 & 5 & 6 & 8 & 10 \\ 
+\hline 
+$E$ & 569.778 & 2.99804 & 2.60559 & 2.61682 & 2.55259 & 2.91948 & 3.87400 & 4.66481 \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+
+Za $m=5$ izvedeno je $300000$ iteracija stohatičkog gradijentnog spusta. Dobiveni parametri nalaze se u tablici \ref{T2}. Srednja kvadratna pogreška na skupu primjera za učenje je $0.038137$.
+
+\begin{center}
+\begin{table}[h]
+\label{T2}
+\caption{}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline 
+$i$ & $a[i]$ & $b[i]$ & $c[i]$ & $d[i]$ & $p[i]$ & $q[i]$ & $r[i]$ \\ 
+\hline 
+$1$ & 2.767550 & 1.395948 & 0.256857 & 0.654884 & 11.682703 & 9.327940 & 3.944325 \\
+\hline 
+$2$ & -2.149569 -& 0.486592 & 2.247638 & 0.480827 & 15.899047 & -15.093297 & 7.473272 \\
+\hline 
+$3$ & 2.912786 & 0.833915 & -2.674430 & -0.804692 & -21.383548 & 22.476928 & 12.977886 \\
+\hline 
+$4$ & 0.784520 & -1.246593 & -0.442674 & 1.267158 & 11.695732 & -13.300107 & 4.042325 \\
+\hline 
+$5$ & 0.170859 & -0.626374 & -2.630421 & -1.274457 & -5.897203 & -10.815935 & 4.354354 \\  
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+
+%2.767550 1.395948 0.256857 0.654884 11.682703 9.327940 3.944325
+%-2.149569 -0.486592 2.247638 0.480827 15.899047 -15.093297 7.473272
+%2.912786 0.833915 -2.674430 -0.804692 -21.383548 22.476928 12.977886
+%0.784520 -1.246593 -0.442674 1.267158 11.695732 -13.300107 4.042325
+%0.170859 -0.626374 -2.630421 -1.274457 -5.897203 -10.815935 4.354354
+ 
 
 
 \end{document}

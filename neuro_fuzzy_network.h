@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace {
-const double kMaxParVal = 1;
+const double kMaxParVal = 0.25;
 const int kMaxParams = 7;
 }
 
