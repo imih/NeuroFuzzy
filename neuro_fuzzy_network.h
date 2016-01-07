@@ -4,6 +4,7 @@
 #include "train_data.h"
 
 #include <random>
+#include <string>
 #include <vector>
 
 namespace {
@@ -15,7 +16,8 @@ enum DescentType { STOCHASTIC, BATCH };
 
 class NeuroFuzzyNetwork {
  public:
-  NeuroFuzzyNetwork(int m);
+  NeuroFuzzyNetwork(int m, double nabla);
+  NeuroFuzzyNetwork(std::string file_name, double nabla);
   void train(DescentType descent_type, const TrainData& train_data);
 
   double predict(double x, double y) { return o(x, y); }
@@ -66,6 +68,7 @@ class NeuroFuzzyNetwork {
   double pom_konc(int i, const TrainSample& train_sample);
 
   int m_;
+  double nabla_;
   //  std::vector<double> params_[kMaxParams]; TODO start using
   std::vector<double> a_, b_, c_, d_, p_, q_, r_;
 

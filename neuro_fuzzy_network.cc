@@ -1,16 +1,17 @@
 #include "neuro_fuzzy_network.h"
 
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <limits>
 
 namespace {
 const double eps = 10e-6;
-const double nabla = 0.001;
 const int kPrintStep = 1;
 }
 
-NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
-    : m_(m), distribution_(-kMaxParVal, kMaxParVal) {
+NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m, double nabla)
+    : m_(m), nabla_(nabla), distribution_(-kMaxParVal, kMaxParVal) {
   for (int i = 0; i < m; ++i) {
     a_.push_back(randDouble());
     b_.push_back(randDouble());
@@ -22,13 +23,35 @@ NeuroFuzzyNetwork::NeuroFuzzyNetwork(int m)
   }
 }
 
+NeuroFuzzyNetwork::NeuroFuzzyNetwork(std::string file_name, double nabla)
+    : NeuroFuzzyNetwork(0, nabla) {
+  std::ifstream infile(file_name);
+  std::vector<std::string> lines;
+  std::string line;
+  while (std::getline(infile, line)) lines.push_back(line);
+  m_ = (int)lines.size();
+  for (int i = 0; i < m_; ++i) {
+    double a, b, c, d, p, q, r;
+    std::istringstream iss(lines[i]);
+    iss >> a >> b >> c >> d >> p >> q >> r;
+    a_.push_back(a);
+    b_.push_back(b);
+    c_.push_back(c);
+    d_.push_back(d);
+    p_.push_back(p);
+    q_.push_back(q);
+    r_.push_back(r);
+  }
+}
+
 void NeuroFuzzyNetwork::train(DescentType descent_type,
                               const TrainData& train_data) {
   int it = 0;
   double E_prev = std::numeric_limits<double>::max();
   while (E(train_data) > eps) {
+    if(it > 5000) break;
     double E_cur = E(train_data);
-    if (E_cur > E_prev) break;
+    //if (E_cur - E_prev > 0.5) break;
     E_prev = E_cur;
     it++;
     if (it % kPrintStep == 0) fprintf(stderr, "%d %lf\n", it, E_cur);
@@ -55,13 +78,13 @@ void NeuroFuzzyNetwork::train(DescentType descent_type,
         dr = dEr(i, train_data);
       }
 
-      a_[i] -= nabla * da;
-      b_[i] -= nabla * db;
-      c_[i] -= nabla * dc;
-      d_[i] -= nabla * dd;
-      p_[i] -= nabla * dp;
-      q_[i] -= nabla * dq;
-      r_[i] -= nabla * dr;
+      a_[i] -= nabla_ * da;
+      b_[i] -= nabla_ * db;
+      c_[i] -= nabla_ * dc;
+      d_[i] -= nabla_ * dd;
+      p_[i] -= nabla_ * dp;
+      q_[i] -= nabla_ * dq;
+      r_[i] -= nabla_ * dr;
     }
     if (it % 1000 == 0) {
       for (int i = 0; i < m_; ++i) {

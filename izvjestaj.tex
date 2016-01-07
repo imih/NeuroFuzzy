@@ -45,6 +45,9 @@
 \numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 
 \setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+\usepackage[]{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -202,7 +205,7 @@ f(x, y) = ((x - 1) ^ 2 + (y + 2)^ 2 - 5xy + 3) {\cos^2(\frac{x}{5})}
 \end{align*}
 pomoću $81$ uzorka evaluiranih u cijelobrojnim točkama nad domenom $[-4, 4]\times[-4, 4]$.
 
-Za evaluaciju jedne epohe gradijetnog spusta batch verzija traje $N$ puta više od stohatičke verzije jer evaluira usrednjeni gradijent po svim primjerima. Za veći $m$ evaluacija epohe također linearno raste zbog većeg broja parametara. Stopa učenja za varijante gradijetnog spusta je jednaka ako je za batch verziju gradijent definiran kao usrednjena vrijednost gradijenata u svim primjerima.
+Za evaluaciju jedne epohe gradijetnog spusta batch verzija traje $N$ puta više od stohatičke verzije jer evaluira usrednjeni gradijent po svim primjerima. Za veći $m$ evaluacija epohe također linearno raste zbog većeg broja parametara. Stopa učenja za varijante gradijetnog spusta je jednaka ako je za batch verziju gradijent definiran kao usrednjena vrijednost gradijenata u svim primjerima (dakle, "dijeljenja" sa $N$).
 
 Kako bi utvrdili optimalan broj parametara vezan uz broj pravila $m$, izveden je stohastički gradijentni spust uz isti seed pseudoslučajnih brojeva do $10000$ iteracija i $\mu = 0.001$. Temeljem tablice \ref{T1}, za optimalan parametar $m$ izabran je $m=5$.
 
@@ -220,7 +223,7 @@ $E$ & 569.778 & 2.99804 & 2.60559 & 2.61682 & 2.55259 & 2.91948 & 3.87400 & 4.66
 \end{table}
 \end{center}
 
-Za $m=5$ izvedeno je $300000$ iteracija stohatičkog gradijentnog spusta. Dobiveni parametri nalaze se u tablici \ref{T2}. Srednja kvadratna pogreška na skupu primjera za učenje je $0.038137$.
+Za $m=5$ izvedeno je $6422000$ iteracija stohatičkog gradijentnog spusta. Dobiveni parametri nalaze se u tablici \ref{T2}. Srednja kvadratna pogreška na skupu primjera za učenje je $0.018906$.
 
 \begin{center}
 \begin{table}[h]
@@ -230,26 +233,92 @@ Za $m=5$ izvedeno je $300000$ iteracija stohatičkog gradijentnog spusta. Dobive
 \hline 
 $i$ & $a[i]$ & $b[i]$ & $c[i]$ & $d[i]$ & $p[i]$ & $q[i]$ & $r[i]$ \\ 
 \hline 
-$1$ & 2.767550 & 1.395948 & 0.256857 & 0.654884 & 11.682703 & 9.327940 & 3.944325 \\
-\hline 
-$2$ & -2.149569 -& 0.486592 & 2.247638 & 0.480827 & 15.899047 & -15.093297 & 7.473272 \\
-\hline 
-$3$ & 2.912786 & 0.833915 & -2.674430 & -0.804692 & -21.383548 & 22.476928 & 12.977886 \\
-\hline 
-$4$ & 0.784520 & -1.246593 & -0.442674 & 1.267158 & 11.695732 & -13.300107 & 4.042325 \\
-\hline 
-$5$ & 0.170859 & -0.626374 & -2.630421 & -1.274457 & -5.897203 & -10.815935 & 4.354354 \\  
+$1$ & 1.492777 & 0.533567 & 1.576968 & 0.496467 & 10.282563 & 12.285726 & 4.090186 \\
+\hline
+$2$ & -1.805703 & -0.493053 & 1.860522 & 0.486659 & 20.727030 & -18.367509 & 8.762050 \\
+\hline
+$3$ & 2.380527 & 0.547726 & -1.890409 & -0.510412 & -27.477596 & 26.472867 & 13.286655 \\
+\hline
+$4$ & 5.510517 & -1.079336 & 0.415180 & -1.310645 & -5.107530 & -10.028177 & -0.608650 \\
+\hline
+$5$ & -1.176125 & -0.429084 & -1.964046 & -0.548890 & -7.980128 & -8.471047 & 5.003974 \\
 \hline 
 \end{tabular} 
 \end{table}
 \end{center}
+%1.492777 0.533567 1.576968 0.496467 10.282563 12.285726 4.090186
+%-1.805703 -0.493053 1.860522 0.486659 20.727030 -18.367509 8.762050
+%2.380527 0.547726 -1.890409 -0.510412 -27.477596 26.472867 13.286655
+%5.510517 -1.079336 0.415180 -1.310645 -5.107530 -10.028177 -0.608650
+%-1.176125 -0.429084 -1.964046 -0.548890 -7.980128 -8.471047 5.003974
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_1.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_2.png}
+\end{subfigure}
 
-%2.767550 1.395948 0.256857 0.654884 11.682703 9.327940 3.944325
-%-2.149569 -0.486592 2.247638 0.480827 15.899047 -15.093297 7.473272
-%2.912786 0.833915 -2.674430 -0.804692 -21.383548 22.476928 12.977886
-%0.784520 -1.246593 -0.442674 1.267158 11.695732 -13.300107 4.042325
-%0.170859 -0.626374 -2.630421 -1.274457 -5.897203 -10.815935 4.354354
- 
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_3.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_4.png}
+\end{subfigure}
 
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_5.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_6.png}
+\end{subfigure}
 
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_7.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_8.png}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_9.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{A_B/figure_10.png}
+\end{subfigure}
+\caption{Funkcije pripadnosti neizrazitih skupova $A_i$ i $B_i$ za svih $5$ pravila u bazi znanja. Funkcije su sigmoidalnog oblika. Primjetimo da se pojavljuju u svim mogućim kombinacijama rastućih i padajućih oblika.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\textwidth]{figure_zad6.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\textwidth]{figure_zad6_2.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\textwidth]{figure_zad6_3.png}
+\end{subfigure}
+\caption{Funkcija pogreške $\delta(x, y)$ za primjere iz skupa za učenje. }
+\end{figure} 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figure_zad7.png}
+\caption{Prosječna kvadratna pogreška na primjerima za učenje, $E$, po epohama učenja za obje verzije gradijentnog spusta. Dok je krivulja za batch verziju strogo padajuća, loše procjene gradijenta pogreške u stohastičkoj verziji uzrokuju česte lokalne maksimume funkcije pogreške, ali ipak uz globalni pad vrijednosti tijekom učenja.}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{zad8_1.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{zad8_2.png}
+\end{subfigure}
+\caption{Pogreška učenja $E$ za obje verzije gradijentnog spusta uz stope učenja $\mu=\{10^{-6}, 10^{-3}, 1\}$.
+Obje verzije gradijentnog spusta stagniraju za premalu stopu učenja $\mu=10^{-6}$.  Gradijentni spustovi za $\mu=10^{-3}$ konvergiraju. Stohastička verzija nema strogo padajuću krivulju zbog loših procjena gradijenata u samo jednoj točki, no takva joj procjena također pomaže u bržoj konvergenciji (i izlazasku iz lokalnih optimuma).
+Batch verzija gradijentnog spustu za $\mu = 1$ divergira, dok za stohastičku verziju nakon nekoliko epoha pogreška kreće padati jer ju je procjena pogreške na temelju jednog primjera usmjerila izvan lokalnog optimuma.}
+\end{figure}
 \end{document}
